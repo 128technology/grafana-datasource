@@ -1,0 +1,23 @@
+<query-editor-row query-ctrl="ctrl" has-text-edit-mode="true">
+
+  <div class="gf-form">
+    <label class="gf-form-label query-keyword width-7">ANALYTIC</label>
+    <metric-segment-model property="ctrl.target.metric" get-options="ctrl.getMetricSegments()" on-change="ctrl.onChangeInternal()"></metric-segment-model>
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label query-keyword width-7">PARAMETERS</label>
+    <input class="gf-form-input" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+  </div>
+
+  <div class="gf-form">
+    <label class="gf-form-label query-keyword width-7">ALIAS</label>
+    <input class="gf-form-input" ng-model="ctrl.target.alias" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+  </div>
+
+  <!--<div class="gf-form-inline">
+    <div ng-repeat="x in ctrl.getRootChain()" role="menuitem" class="gf-form">
+      <metric-segment segment="x.segment" get-options="x.getOptions()" on-change="x.onChangeInternal()"></metric-segment>
+    </div>
+  </div>-->
+</query-editor-row>
