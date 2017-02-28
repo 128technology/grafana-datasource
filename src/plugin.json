@@ -1,10 +1,7 @@
 {
   "name": "128T",
-  "id": "grafana-simple-json-datasource",
+  "id": "128t-datasource",
   "type": "datasource",
-  "partials": {
-    "config": "public/app/plugins/datasource/simplejson/partials/config.html"
-  },
   "metrics": true,
   "annotations": true,
   "info": {
