@@ -1,6 +1,10 @@
-import _ from 'lodash';
-import {QueryCtrl} from 'app/plugins/sdk';
-import './css/query-editor.css!'
+/* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable import/no-unresolved */
+/* eslint-disable import/extensions */
+/* eslint-disable import/no-webpack-loader-syntax */
+
+import { QueryCtrl } from 'app/plugins/sdk';
+import './css/query-editor.css!';
 
 const analytics = [
   'bandwidth',
@@ -46,28 +50,24 @@ const analytics = [
   'tx_udp_packets_dropped',
   'rx_udp_packets_dropped',
   'tx_tcp_retransmissions',
-  'rx_tcp_retransmissions'
+  'rx_tcp_retransmissions',
 ];
 
-export class GenericDatasourceQueryCtrl extends QueryCtrl {
+export default class GenericDatasourceQueryCtrl extends QueryCtrl {
 
-  constructor($scope, $injector, uiSegmentSrv, $q)  {
+  constructor($scope, $injector, uiSegmentSrv, $q) {
     super($scope, $injector);
-
-    console.log(this);
 
     this.q = $q;
     this.scope = $scope;
     this.uiSegmentSrv = uiSegmentSrv;
-    this.target.metric = this.target.metric || 'select metric'
+    this.target.metric = this.target.metric || 'select metric';
   }
 
   getMetricSegments() {
-    return this.q.resolve(analytics.map(x => {
-      return this.uiSegmentSrv.newSegment({
-        value: x
-      });
-    }));
+    return this.q.resolve(analytics.map(x => this.uiSegmentSrv.newSegment({
+      value: x,
+    })));
   }
 
   onChangeInternal() {
