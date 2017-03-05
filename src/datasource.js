@@ -1,28 +1,28 @@
 import _ from 'lodash';
 import moment from 'moment';
 
-function walkQuery(tokens, root) {
-  if (_.isNil(root)) {
-    return [];
-  }
-  const tok = _.head(tokens);
-  const rTok = _.tail(tokens);
+// function walkQuery(tokens, root) {
+//   if (_.isNil(root)) {
+//     return [];
+//   }
+//   const tok = _.head(tokens);
+//   const rTok = _.tail(tokens);
 
-  if (rTok.length === 0) {
-    return root[tok] || [];
-  }
+//   if (rTok.length === 0) {
+//     return root[tok] || [];
+//   }
 
-  if (_.isArray(root)) {
-    if (tok === '*') {
-      return _.flatMap(root, x => walkQuery(rTok, x));
-    }
+//   if (_.isArray(root)) {
+//     if (tok === '*') {
+//       return _.flatMap(root, x => walkQuery(rTok, x));
+//     }
 
-    const nextRoot = _.find(root, x => x.id === tok);
-    return walkQuery(rTok, nextRoot);
-  }
+//     const nextRoot = _.find(root, x => x.id === tok);
+//     return walkQuery(rTok, nextRoot);
+//   }
 
-  return walkQuery(rTok, root[tok]);
-}
+//   return walkQuery(rTok, root[tok]);
+// }
 
 function toIdentifiers(root) {
   function select(data) {
@@ -58,11 +58,17 @@ export default class GenericDatasource {
   }
 
   query(options) {
-    const rangeTo = moment(options.range.to);
-    const rangeFrom = moment(options.range.from);
-    const resolution = Math.max(options.intervalMs / 1000, 1);
+    const {
+      range = {},
+      intervalMs,
+      targets = [],
+    } = options;
 
-    const requests = options.targets.filter(t => !t.hide).map(targetObj => {
+    const rangeTo = moment(range.to).utc().format('YYYY-MM-DDTHH-mm-ss');
+    const rangeFrom = moment(range.from).utc().format('YYYY-MM-DDTHH-mm-ss');
+    const resolution = Math.max(intervalMs / 1000, 1);
+
+    const requests = targets.filter(t => !t.hide).map(targetObj => {
       const target = this.templateSrv.replace(targetObj.target);
       const parameters = target.split(',').map(x => x.trim()).map((x) => {
         const args = x.split('=');
@@ -78,8 +84,8 @@ export default class GenericDatasource {
           parameters,
           resolution,
           window: {
-            end: `${rangeTo.utc().format('YYYY-MM-DDTHH-mm-ss')}Z`,
-            start: `${rangeFrom.utc().format('YYYY-MM-DDTHH-mm-ss')}Z`,
+            end: `${rangeTo}Z`,
+            start: `${rangeFrom}Z`,
           },
         },
         method: 'POST',

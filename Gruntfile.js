@@ -62,19 +62,29 @@ module.exports = function Grunt(grunt) {
       distTestsSpecsNoSystemJs: {
         files: [{
           expand: true,
-          cwd: 'spec',
+          cwd: 'tests',
           src: ['**/*.js'],
-          dest: 'dist/test/spec',
+          dest: 'dist/test/tests',
           ext: '.js',
         }],
       },
     },
+
     eslint: {
       target: ['**/*.js', '!node_modules/**/*.js', '!dist/**/*.js'],
     },
+
+    mochaTest: {
+      test: {
+        options: {
+          reporter: 'spec',
+        },
+        src: ['dist/test/tests/test-main.js', 'dist/test/tests/*-test.js'],
+      },
+    },
   });
 
-  grunt.registerTask('default', ['clean', 'eslint', 'copy:src_to_dist', 'copy:pluginDef', 'babel']);
+  grunt.registerTask('default', ['clean', 'eslint', 'copy:src_to_dist', 'copy:pluginDef', 'babel', 'mochaTest']);
   grunt.registerTask('build', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'babel']);
-  grunt.registerTask('validate', ['eslint']);
+  grunt.registerTask('validate', ['clean', 'eslint', 'babel', 'mochaTest']);
 };
