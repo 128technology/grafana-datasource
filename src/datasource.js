@@ -1,8 +1,52 @@
 import _ from 'lodash';
 import moment from 'moment';
 
-export default class GenericDatasource {
+function walkQuery(tokens, root) {
+  if (_.isNil(root)) {
+    return [];
+  }
+  const tok = _.head(tokens);
+  const rTok = _.tail(tokens);
 
+  if (rTok.length === 0) {
+    return root[tok] || [];
+  }
+
+  if (_.isArray(root)) {
+    if (tok === '*') {
+      return _.flatMap(root, x => walkQuery(rTok, x));
+    }
+
+    const nextRoot = _.find(root, x => x.id === tok);
+    return walkQuery(rTok, nextRoot);
+  }
+
+  return walkQuery(rTok, root[tok]);
+}
+
+function toIdentifiers(root) {
+  function select(data) {
+    if (_.isArray(data)) {
+      const obj = _.fromPairs(data.map(x => [x.id, x]));
+      return select(obj);
+    }
+    if (_.isObject(data)) {
+      return _.flatMap(_.keys(data), x => select(data[x]).map(y => [x, y]));
+    }
+    return [data];
+  }
+
+  return select(root)
+    .map(_.flattenDeep)
+    .map(x => {
+      const ptrn = _.initial(x).join('.');
+      const val = _.last(x);
+      return `${ptrn}:${val}`;
+    });
+}
+
+
+export default class GenericDatasource {
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.token = instanceSettings.jsonData.token;
     this.type = instanceSettings.type;
@@ -14,6 +58,10 @@ export default class GenericDatasource {
   }
 
   query(options) {
+    const rangeTo = moment(options.range.to);
+    const rangeFrom = moment(options.range.from);
+    const resolution = Math.max(options.intervalMs / 1000, 1);
+
     const requests = options.targets.filter(t => !t.hide).map(targetObj => {
       const target = this.templateSrv.replace(targetObj.target);
       const parameters = target.split(',').map(x => x.trim()).map((x) => {
@@ -26,11 +74,12 @@ export default class GenericDatasource {
         data: {
           metric: targetObj.metric,
           transform: 'sum',
+          order: 'ascending',
           parameters,
-          resolution: options.intervalMs / 1000,
+          resolution,
           window: {
-            end: `${moment(options.range.to).utc().format('YYYY-MM-DDTHH-mm-ss')}Z`,
-            start: `${moment(options.range.from).utc().format('YYYY-MM-DDTHH-mm-ss')}Z`,
+            end: `${rangeTo.utc().format('YYYY-MM-DDTHH-mm-ss')}Z`,
+            start: `${rangeFrom.utc().format('YYYY-MM-DDTHH-mm-ss')}Z`,
           },
         },
         method: 'POST',
@@ -97,5 +146,28 @@ export default class GenericDatasource {
         Authorization: `Bearer ${this.token}`,
       },
     });
+  }
+
+  metricFindQuery(query) {
+    const formattedQuery = query.replace('*', '([^.]+)');
+    const interpolated = this.templateSrv.replace(formattedQuery, null, 'regex');
+    const regexStr = `^${interpolated}:`;
+    const regex = new RegExp(regexStr);
+
+    return this.graphQuery(`query {
+      authority {
+        router {
+          id: name
+          node {
+            id: name
+          }
+        }
+      }
+    }`)
+    .then(x => x.data.data)
+    .then(x => toIdentifiers(x)
+      .filter(p => regex.test(p))
+      .map(p => _.last(p.split(':'))))
+    .then(x => x.map(val => ({ text: val })));
   }
 }

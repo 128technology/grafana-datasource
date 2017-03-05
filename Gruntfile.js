@@ -28,7 +28,7 @@ module.exports = function Grunt(grunt) {
     watch: {
       rebuild_all: {
         files: ['src/**/*'],
-        tasks: ['default'],
+        tasks: ['build'],
         options: { spawn: false },
       },
     },
@@ -70,10 +70,11 @@ module.exports = function Grunt(grunt) {
       },
     },
     eslint: {
-      target: ['**/*.js', '!node_modules/**/*.js'],
+      target: ['**/*.js', '!node_modules/**/*.js', '!dist/**/*.js'],
     },
   });
 
   grunt.registerTask('default', ['clean', 'eslint', 'copy:src_to_dist', 'copy:pluginDef', 'babel']);
+  grunt.registerTask('build', ['clean', 'copy:src_to_dist', 'copy:pluginDef', 'babel']);
   grunt.registerTask('validate', ['eslint']);
 };
