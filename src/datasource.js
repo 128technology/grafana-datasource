@@ -79,7 +79,7 @@ export default class GenericDatasource {
         url: `${this.url}/api/v1/analytics/runningTransform`,
         data: {
           metric: targetObj.metric,
-          transform: 'sum',
+          transform: targetObj.transform || 'sum',
           order: 'ascending',
           parameters,
           resolution,

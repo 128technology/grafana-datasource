@@ -8,7 +8,6 @@ import './css/query-editor.css!';
 
 const analytics = [
   'bandwidth',
-  'utilization',
   'gross_entitlement',
   'packets_lost',
   'payload',
@@ -23,34 +22,19 @@ const analytics = [
   'tx_data',
   'rx_data',
   'tx_rx_ratio',
-  'total_tcp_data',
-  'tx_tcp_data',
-  'rx_tcp_data',
-  'tcp_tx_rx_ratio',
-  'total_udp_data',
-  'tx_udp_data',
-  'rx_udp_data',
-  'udp_tx_rx_ratio',
   'total_packets',
   'tx_packets',
   'rx_packets',
   'tx_rx_packets_ratio',
   'tx_packets_dropped',
   'rx_packets_dropped',
-  'total_tcp_packets',
-  'tx_tcp_packets',
-  'rx_tcp_packets',
-  'tx_rx_tcp_packets_ratio',
-  'tx_tcp_packets_dropped',
-  'rx_tcp_packets_dropped',
-  'total_udp_packets',
-  'tx_udp_packets',
-  'rx_udp_packets',
-  'tx_rx_udp_packets_ratio',
-  'tx_udp_packets_dropped',
-  'rx_udp_packets_dropped',
-  'tx_tcp_retransmissions',
-  'rx_tcp_retransmissions',
+];
+
+const transforms = [
+  'average',
+  'sum',
+  'min',
+  'max',
 ];
 
 export default class GenericDatasourceQueryCtrl extends QueryCtrl {
@@ -62,10 +46,17 @@ export default class GenericDatasourceQueryCtrl extends QueryCtrl {
     this.scope = $scope;
     this.uiSegmentSrv = uiSegmentSrv;
     this.target.metric = this.target.metric || 'select metric';
+    this.target.transform = this.target.transform || 'sum';
   }
 
   getMetricSegments() {
     return this.q.resolve(analytics.map(x => this.uiSegmentSrv.newSegment({
+      value: x,
+    })));
+  }
+
+  getMetricTransforms() {
+    return this.q.resolve(transforms.map(x => this.uiSegmentSrv.newSegment({
       value: x,
     })));
   }

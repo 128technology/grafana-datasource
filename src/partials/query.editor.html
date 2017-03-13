@@ -3,6 +3,9 @@
   <div class="gf-form">
     <label class="gf-form-label query-keyword width-7">ANALYTIC</label>
     <metric-segment-model property="ctrl.target.metric" get-options="ctrl.getMetricSegments()" on-change="ctrl.onChangeInternal()"></metric-segment-model>
+
+    <label class="gf-form-label query-keyword width-7">TRANSFORM</label>
+    <metric-segment-model property="ctrl.target.transform" get-options="ctrl.getMetricTransforms()" on-change="ctrl.onChangeInternal()"></metric-segment-model>
   </div>
 
   <div class="gf-form">
