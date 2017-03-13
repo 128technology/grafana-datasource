@@ -1,4 +1,14 @@
 language: node_js
 node_js:
-  - "6"
+- '6'
 
+before_deploy: npm run build && tar -zcvf 128T-datasource.tar.gz dist media package.json README.md LICENSE
+
+deploy:
+  provider: releases
+  api_key:
+    secure: SJF3Aua/46GvCI6EwO7ikMExcPQ0fnrCYPf4OpfDvPhsKOJfoTWOp5fJKPfC6jxsk+3igP6rOZ3/IcdbxpYa3/Q+Y0lysksvqrw/oXMlF7Qb8L7M81Icy75rKhS42ODcKwqJK7qMTn3ZjEwS0V0+fZRw3UxR8Z+mL1Woq2czvj7oyvlMDej8qHL8RjLzrQwdFw5hmhSrnLB+s1m4vFyN8ZPFfdAqIyBSokcY3ss5jnvu6o8p1IeNy/uN/a4Fmq2gnqhiPssRUbg3IsDbMTsfVZKNkmg2GBrB09cd0v33j43TWy+cye7+NllEg7UOf4diUJi2HWfx8drB+3Zt0vj5O7HgAPwNak8ELwH8Y+Arb2NxQ1oLYRUMp5lkO2DH+PwcL/DJinXurRO43zIUFeO6Aqs9msU4evRlz/nqQBcMLGOdNz25HltylamR9gxojZUUZFSmd9iYDQsaya+4+gg5WCbHO1lLtP0mLMV31k7O8A5l+ihTRU8afFrITj0URzRkKb9h/gKDEFV7XYZ9bKY+9gYT6tXgee6V8zeNth0arBSXcWTOocyotW+u5dMQ/ndvSg4yImNwBEKB4KyFV4S6hSo0Jw/4sAYK2AJHMHz6s01iNhvpnSHTAB/37nS5m9z1U3RpUNUZp4OiA6sWGbewSlkmd2vV9HlMYQDD2LtiUgs=
+  file: 128T-datasource.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
