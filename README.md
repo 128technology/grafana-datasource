@@ -8,3 +8,9 @@ This plugin provides support for the 128T product as a metric datasource. The 12
 
 ![Screenshot](media/screenshot1.png?raw=true)
 
+## Getting Started
+
+Please see the [Getting Started wiki page](https://github.com/128technology/grafana-datasource/wiki/Getting-Started) for a detailed walkthrough getting Grafana and the 128T Datasource installed an operational. Any feedback is appreciated and can be suggested via [an issue](https://github.com/128technology/grafana-datasource/issues/new)
+
+
+

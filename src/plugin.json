@@ -4,6 +4,9 @@
   "type": "datasource",
   "metrics": true,
   "annotations": true,
+  "includes": [
+    {"type": "dashboard", "name": "Starter 128T Dashboard", "path": "dashboards/starter.json"}
+  ],
   "info": {
     "description": "An analytic datasource for the 128T router.",
     "author": {
