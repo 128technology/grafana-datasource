@@ -1,29 +1,6 @@
 import _ from 'lodash';
 import moment from 'moment';
 
-// function walkQuery(tokens, root) {
-//   if (_.isNil(root)) {
-//     return [];
-//   }
-//   const tok = _.head(tokens);
-//   const rTok = _.tail(tokens);
-
-//   if (rTok.length === 0) {
-//     return root[tok] || [];
-//   }
-
-//   if (_.isArray(root)) {
-//     if (tok === '*') {
-//       return _.flatMap(root, x => walkQuery(rTok, x));
-//     }
-
-//     const nextRoot = _.find(root, x => x.id === tok);
-//     return walkQuery(rTok, nextRoot);
-//   }
-
-//   return walkQuery(rTok, root[tok]);
-// }
-
 function toIdentifiers(root) {
   function select(data) {
     if (_.isArray(data)) {
@@ -45,7 +22,6 @@ function toIdentifiers(root) {
     });
 }
 
-
 export default class GenericDatasource {
   constructor(instanceSettings, $q, backendSrv, templateSrv) {
     this.token = instanceSettings.jsonData.token;
@@ -55,6 +31,23 @@ export default class GenericDatasource {
     this.q = $q;
     this.backendSrv = backendSrv;
     this.templateSrv = templateSrv;
+  }
+
+  jsonRequest(url, method = 'GET', data) {
+    return this.backendSrv.datasourceRequest({
+      url: `${this.url}${url}`,
+      method,
+      data,
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${this.token}`,
+      },
+    });
+  }
+
+  getVersion() {
+    return this.jsonRequest('/api/v1/system')
+      .then(x => x.softwareVersion);
   }
 
   query(options) {
@@ -75,23 +68,15 @@ export default class GenericDatasource {
         return { name: _.toLower(args[0]), value: args[1] };
       });
 
-      return this.backendSrv.datasourceRequest({
-        url: `${this.url}/api/v1/analytics/runningTransform`,
-        data: {
-          metric: targetObj.metric,
-          transform: targetObj.transform || 'sum',
-          order: 'ascending',
-          parameters,
-          resolution,
-          window: {
-            end: `${rangeTo}Z`,
-            start: `${rangeFrom}Z`,
-          },
-        },
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.token}`,
+      return this.jsonRequest('/api/v1/analytics/runningTransform', 'POST', {
+        metric: targetObj.metric,
+        transform: targetObj.transform || 'sum',
+        order: 'ascending',
+        parameters,
+        resolution,
+        window: {
+          end: `${rangeTo}Z`,
+          start: `${rangeFrom}Z`,
         },
       })
       .then(resp => ({
@@ -106,52 +91,42 @@ export default class GenericDatasource {
   }
 
   testDatasource() {
-    return this.graphQuery('query { authority { name } }')
+    return this.jsonRequest('/api/v1/system')
       .then((response) => {
         if (response.status !== 200) {
-          return { status: 'error', message: `Target returned a ${response.status}`, title: 'Error' };
+          return {
+            status: 'error',
+            message: `Target returned a ${response.status}`,
+            title: 'Error',
+          };
         }
 
-        if (_.get(response, 'data.data.authority.name', null) === null) {
-          return { status: 'error', message: 'Connection successful but query returned invalid data.', title: 'Error' };
-        }
-
-        return { status: 'success', message: 'Data source is working', title: 'Success' };
+        return {
+          status: 'success',
+          message: 'Data source is working',
+          title: 'Success',
+        };
       });
   }
 
   annotationQuery(options) {
-    return this.backendSrv.datasourceRequest({
-      url: `${this.url}/api/v1/alarm`,
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.token}`,
-      },
-    }).then(result => result.data.map((alarm, idx) => ({
-      annotation: {
-        name: `Alarm #${alarm.number}`,
-        datasource: options.annotation.datasource,
-        enable: options.annotation.enable,
-        showLine: true,
-      },
-      title: `Alarm #${alarm.number}`,
-      time: (moment(alarm.time).unix() * 1000) + idx,
-      text: alarm.message,
-      tags: alarm.severity,
-    })));
+    return this.jsonRequest('/api/v1/alarm')
+      .then(result => result.data.map((alarm, idx) => ({
+        annotation: {
+          name: `Alarm #${alarm.number}`,
+          datasource: options.annotation.datasource,
+          enable: options.annotation.enable,
+          showLine: true,
+        },
+        title: `Alarm #${alarm.number}`,
+        time: (moment(alarm.time).unix() * 1000) + idx,
+        text: alarm.message,
+        tags: alarm.severity,
+      })));
   }
 
   graphQuery(query, variables) {
-    return this.backendSrv.datasourceRequest({
-      url: `${this.url}/api/v1/graphql`,
-      data: { query, variables },
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.token}`,
-      },
-    });
+    return this.jsonRequest('/api/v1/graphql', 'POST', { query, variables });
   }
 
   metricFindQuery(query) {
