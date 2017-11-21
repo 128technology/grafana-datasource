@@ -13,7 +13,7 @@ describe('Datasource', () => {
       jsonData: 'token',
       type: 'type',
       url: 'url',
-      name: 'name',
+      name: 'name'
     };
 
     ctx.$q = Q;
@@ -29,16 +29,17 @@ describe('Datasource', () => {
   });
 
   it('tests the datasource successfully', () => {
-    ctx.backendSrv.datasourceRequest = () => Q.resolve({
-      status: 200,
-      data: {
+    ctx.backendSrv.datasourceRequest = () =>
+      Q.resolve({
+        status: 200,
         data: {
-          authority: {
-            name: 'moomoocow',
-          },
-        },
-      },
-    });
+          data: {
+            authority: {
+              name: 'moomoocow'
+            }
+          }
+        }
+      });
 
     ctx.ds.testDatasource().then(result => {
       expect(result.status).to.equal('success');
@@ -46,9 +47,10 @@ describe('Datasource', () => {
   });
 
   it('fails testing the datasource with bad status', () => {
-    ctx.backendSrv.datasourceRequest = () => Q.resolve({
-      status: 500,
-    });
+    ctx.backendSrv.datasourceRequest = () =>
+      Q.resolve({
+        status: 500
+      });
 
     ctx.ds.testDatasource().then(result => {
       expect(result.status).to.equal('error');
@@ -56,10 +58,11 @@ describe('Datasource', () => {
   });
 
   it('fails testing the datasource w/ non-graph response', () => {
-    ctx.backendSrv.datasourceRequest = () => Q.resolve({
-      status: 200,
-      data: 'hello',
-    });
+    ctx.backendSrv.datasourceRequest = () =>
+      Q.resolve({
+        status: 200,
+        data: 'hello'
+      });
 
     ctx.ds.testDatasource().then(result => {
       expect(result.status).to.equal('error');
