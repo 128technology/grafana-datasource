@@ -1,26 +1,38 @@
-<query-editor-row query-ctrl="ctrl" has-text-edit-mode="true">
+<query-editor-row query-ctrl="ctrl" has-text-edit-mode="false">
 
   <div class="gf-form">
     <label class="gf-form-label query-keyword width-7">ANALYTIC</label>
-    <metric-segment-model property="ctrl.target.metric" get-options="ctrl.getMetricSegments()" on-change="ctrl.onChangeInternal()"></metric-segment-model>
+    <metric-segment segment="ctrl.metricSegment" get-options="ctrl.getMetricSegments()" on-change="ctrl.onMetricChanged()" />
 
     <label class="gf-form-label query-keyword width-7">TRANSFORM</label>
-    <metric-segment-model property="ctrl.target.transform" get-options="ctrl.getMetricTransforms()" on-change="ctrl.onChangeInternal()"></metric-segment-model>
+    <metric-segment-model property="ctrl.target.transform" get-options="ctrl.getMetricTransforms()" on-change="ctrl.onChangeInternal()" />
+
+    <div class="gf-form gf-form--grow">
+      <div class="gf-form-label gf-form-label--grow"></div>
+    </div>
   </div>
 
   <div class="gf-form">
-    <label class="gf-form-label query-keyword width-7">PARAMETERS</label>
-    <input class="gf-form-input" ng-model="ctrl.target.target" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+      <label class="gf-form-label query-keyword width-7">WHERE</label>
+
+      <label class="gf-form-label query-keyword">router:</label>
+      <metric-segment segment="ctrl.routerSegment" get-options="ctrl.getRouterSegments()" on-change="ctrl.onRouterChanged()" />
+
+      <div ng-repeat="x in ctrl.whereSegments" role="menuitem" class="gf-form">
+        <label class="gf-form-label query-keyword" ng-if="x.type == 'label'">{{x.value}}</label>
+        <metric-segment segment="x.segment" get-options="x.getOptions()" on-change="x.onChanged()" ng-if="x.type == 'segment'" />
+      </div>
+
+      <div class="gf-form gf-form--grow">
+        <div class="gf-form-label gf-form-label--grow"></div>
+      </div>
   </div>
 
   <div class="gf-form">
     <label class="gf-form-label query-keyword width-7">ALIAS</label>
-    <input class="gf-form-input" ng-model="ctrl.target.alias" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
-  </div>
-
-  <!--<div class="gf-form-inline">
-    <div ng-repeat="x in ctrl.getRootChain()" role="menuitem" class="gf-form">
-      <metric-segment segment="x.segment" get-options="x.getOptions()" on-change="x.onChangeInternal()"></metric-segment>
+    <input class="gf-form-input max-width-30" ng-model="ctrl.target.alias" spellcheck="false" ng-blur="ctrl.onChangeInternal()" />
+    <div class="gf-form gf-form--grow">
+      <div class="gf-form-label gf-form-label--grow"></div>
     </div>
-  </div>-->
+  </div>
 </query-editor-row>

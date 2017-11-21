@@ -19,6 +19,7 @@
     "chai": "~3.5.0",
     "eslint": "^3.16.1",
     "eslint-config-airbnb-base": "^11.1.0",
+    "eslint-config-prettier": "^2.8.0",
     "eslint-plugin-import": "^2.2.0",
     "grunt": "^0.4.5",
     "grunt-babel": "~6.0.0",
