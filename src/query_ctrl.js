@@ -92,9 +92,7 @@ export default class GenericDatasourceQueryCtrl extends QueryCtrl {
       whereSegments.push({
         segment,
         type: 'segment',
-        getOptions: () => {
-          return this.getPermutations().then(x => _.map(x[key], y => this.uiSegmentSrv.newKeyValue(y)));
-        },
+        getOptions: () => this.getPermutations().then(x => _.map(x[key], y => this.uiSegmentSrv.newKeyValue(y))),
         onChanged: () => {
           this.target.params[key] = segment.value;
           this.onChangeInternal();
